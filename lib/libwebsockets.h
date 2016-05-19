@@ -476,6 +476,12 @@ enum lws_callback_reasons {
 	LWS_CALLBACK_COMPLETED_CLIENT_HTTP			= 47,
 	LWS_CALLBACK_RECEIVE_CLIENT_HTTP_READ			= 48,
 	LWS_CALLBACK_HTTP_DROP_PROTOCOL				= 49,
+	LWS_CALLBACK_CHECK_ACCESS_RIGHTS			= 50,
+	LWS_CALLBACK_PROCESS_HTML				= 51,
+	LWS_CALLBACK_ADD_HEADERS				= 52,
+	LWS_CALLBACK_SESSION_INFO				= 53,
+
+	LWS_CALLBACK_GS_EVENT					= 54,
 
 	/****** add new things just above ---^ ******/
 
@@ -1338,6 +1344,13 @@ struct lws_protocols {
 	 * This is part of the ABI, don't needlessly break compatibility */
 };
 
+struct lws_session_info {
+	char username[32];
+	char email[100];
+	unsigned int mask;
+	char session[42];
+};
+
 struct lws_process_html_args {
 	char *p;
 	int len;
@@ -1470,12 +1483,15 @@ struct lws_http_mount {
 	const char *mountpoint; /* mountpoint in http pathspace, eg, "/" */
 	const char *origin; /* path to be mounted, eg, "/var/www/warmcat.com" */
 	const char *def; /* default target, eg, "index.html" */
+	const char *protocol; /* "protocol-name" to handle mount */
 
 	const struct lws_protocol_vhost_options *cgienv;
 	const struct lws_protocol_vhost_options *extra_mimetypes;
+	const struct lws_protocol_vhost_options *interpret;
 
 	int cgi_timeout;
 	int cache_max_age;
+	unsigned int auth_mask;
 
 	unsigned int cache_reusable:1;
 	unsigned int cache_revalidate:1;
@@ -1736,6 +1752,9 @@ lws_create_vhost(struct lws_context *context,
 LWS_VISIBLE LWS_EXTERN int
 lws_init_vhost_client_ssl(const struct lws_context_creation_info *info,
 			  struct lws_vhost *vhost);
+
+LWS_VISIBLE LWS_EXTERN const struct lws_protocols *
+lws_vhost_name_to_protocol(struct lws_vhost *vh, const char *name);
 
 /* deprecated: use lws_get_vhost() */
 LWS_VISIBLE LWS_EXTERN struct lws_vhost *
