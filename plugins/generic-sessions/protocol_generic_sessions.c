@@ -489,7 +489,8 @@ callback_generic_sessions(struct lws *wsi, enum lws_callback_reasons reason,
 		break;
 
 	case LWS_CALLBACK_SESSION_INFO:
-		n = 0;
+	{
+		struct lwsgs_user u;
 		sinfo = (struct lws_session_info *)in;
 		sinfo->username[0] = '\0';
 		sinfo->email[0] = '\0';
@@ -516,6 +517,7 @@ callback_generic_sessions(struct lws *wsi, enum lws_callback_reasons reason,
 		strncpy(sinfo->email, u.email, sizeof(sinfo->email));
 		strncpy(sinfo->session, sid.id, sizeof(sinfo->session));
 		sinfo->mask = lwsgs_get_auth_level(vhd, username);
+	}
 		break;
 
 	case LWS_CALLBACK_PROCESS_HTML:
