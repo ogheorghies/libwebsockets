@@ -436,7 +436,8 @@ int main(int argc, char **argv)
 
 		if (n)
 			for (n = 0; n < count_pollfds; n++)
-				if (pollfds[n].revents)
+				if (pollfds[n].revents) {
+					fprintf(stderr, "%0X ", pollfds[n].revents);
 					/*
 					* returns immediately if the fd does not
 					* match anything under libwebsockets
@@ -445,6 +446,7 @@ int main(int argc, char **argv)
 					if (lws_service_fd(context,
 								  &pollfds[n]) < 0)
 						goto done;
+				}
 #else
 		/*
 		 * If libwebsockets sockets are all we care about,
